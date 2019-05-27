@@ -1,0 +1,53 @@
+# used for local serverless
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A hello world application.
+Resources:
+  HelloFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bin/hello
+      Runtime: go1.x
+      Events:
+        Hello:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: post
+
+  WorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bin/world
+      Runtime: go1.x
+      Events:
+        World:
+          Type: Api
+          Properties:
+            Path: /world
+            Method: get
+
+  EventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bin/event
+      Runtime: go1.x
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /event
+            Method: post
+
+  UploadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bin/upload
+      Runtime: go1.x
+      Events:
+        Upload:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: post
+       
