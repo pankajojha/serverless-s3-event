@@ -1,32 +1,15 @@
 # used for local serverless
 AWSTemplateFormatVersion : '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: A hello world application.
+Description: Applicaton to upload post data to s3 and on event read s3 and post to some endpoint to process
+
+Parameters:
+    BucketName:
+        Type: String
+    XAutherizationValue:
+        Type: String
+
 Resources:
-  HelloFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: bin/hello
-      Runtime: go1.x
-      Events:
-        Hello:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: post
-
-  WorldFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: bin/world
-      Runtime: go1.x
-      Events:
-        World:
-          Type: Api
-          Properties:
-            Path: /world
-            Method: get
-
   EventFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -38,6 +21,8 @@ Resources:
           Properties:
             Path: /event
             Method: post
+            BucketName: pci-1
+            XAutherization: test1234
 
   UploadFunction:
     Type: AWS::Serverless::Function
@@ -50,4 +35,5 @@ Resources:
           Properties:
             Path: /upload
             Method: post
-       
+            BucketName: pci-1
+            XAutherization: test1234

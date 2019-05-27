@@ -11,6 +11,8 @@ import (
 
 func handleRequest(ctx context.Context, s3Event events.S3Event) {
 
+	fmt.Println(" Received s3 event ", s3Event)
+
 	data, _ := json.Marshal(s3Event)
 	//Now convert to a string and output
 	//Cloudwatch picks up the json and formats it nicely for us. :)

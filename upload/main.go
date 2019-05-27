@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -28,13 +29,34 @@ func GUID() (guid string) {
 const XAutherizationKey = "X-Autherization"
 
 // Request header value...
-const XAutherizationValue = "8C478DB221879DD93D1EA0F7488CEA4D"
+var XAutherizationValue = os.Getenv("XAutherization")
+
+// Region needs be set ...
+var REGION = os.Getenv("AWS_REGION")
+
+var buketName = os.Getenv("bucketName")
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	fmt.Printf("Body size = %d.\n", len(request.Body))
 
 	isAuthenticated := false
+
+	if XAutherizationValue == "" {
+		fmt.Println(" set the XAutherization value")
+		//XAutherizationValue = "Test123"
+	}
+
+	if REGION == "" {
+		fmt.Println(" Region value is not set please, trying us-east-1 ")
+		REGION = "us-east-1"
+	}
+
+	if buketName == "" {
+		fmt.Println(" bucketName needs to be defined")
+	}
+
+	fmt.Println(" XAutherizationValue ", XAutherizationValue, " Region: ", REGION, " bucketName: ", bucketName)
 
 	fmt.Println("Headers:")
 	for key, value := range request.Headers {
@@ -54,13 +76,13 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 
 	newFileName := GUID()
 
-	bucket := flag.String("bucket", "pci-1", "The s3 bucket to upload to")
+	bucket := flag.String("bucket", bucketName, "The s3 bucket to upload to")
 	//filename := flag.String(newFileName, "", "The file to be uploaded to s3")
 
 	fmt.Println("Received body: ", inputJSON, bucket, "fileName....", newFileName)
 
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1")},
+		Region: aws.String(REGION)},
 	)
 
 	if err != nil {

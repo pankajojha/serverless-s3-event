@@ -11,7 +11,7 @@
 #
 # Happy Coding! 
 
-service: s3EventService # NOTE: update this with your service name
+service: serveless-event-Service # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -19,7 +19,9 @@ service: s3EventService # NOTE: update this with your service name
 frameworkVersion: ">=1.28.0 <2.0.0"
 
 custom:
-  bucketName: pci-1
+  bucketName: pci-2
+  region: us-east-1
+  XAutherization: 8C478D
   serverless-offline:
     port: 4000
 
@@ -69,18 +71,6 @@ package:
    - ./bin/**
 
 functions:
-  hello:
-    handler: bin/hello
-    events:
-      - http:
-          path: hello
-          method: post
-  world:
-    handler: bin/world
-    events:
-      - http:
-          path: world
-          method: get
   event:
     handler: bin/event
     events:
