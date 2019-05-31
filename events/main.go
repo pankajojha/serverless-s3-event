@@ -1,17 +1,43 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+var WebhookUrl = os.Getenv("webhook_post_url")
+
 func handleRequest(ctx context.Context, s3Event events.S3Event) {
 
-	fmt.Println(" Received s3 event ", s3Event)
+	fmt.Println(" Received s3 event ", s3Event, WebhookUrl)
+
+	url := WebhookUrl
+	fmt.Println("URL:>", url)
+
+	var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
 
 	data, _ := json.Marshal(s3Event)
 	//Now convert to a string and output

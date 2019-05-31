@@ -26,37 +26,32 @@ func GUID() (guid string) {
 }
 
 //Request header key ...
-const XAutherizationKey = "X-Autherization"
+const XAutherizationKey = "X-Notification-Secret"
 
 // Request header value...
 var XAutherizationValue = os.Getenv("XAutherization")
 
 // Region needs be set ...
-var REGION = os.Getenv("AWS_REGION")
+var REGION = os.Getenv("REGION")
 
-var buketName = os.Getenv("bucketName")
+// bucker name
+var bucketName = os.Getenv("BUCKET")
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
+	//////////////////
+	// REGION = "us-east-1"
+	// bucketName = "pci-1"
+	// XAutherizationValue = "abcd1234"
+	//////////////////
+
 	fmt.Printf("Body size = %d.\n", len(request.Body))
+	fmt.Println(" XAutherizationValue ", XAutherizationValue, " Region: ", REGION, " bucketName: ", bucketName)
+
+	inputJSON := request.Body
+	fmt.Println(" inputJSON ", inputJSON)
 
 	isAuthenticated := false
-
-	if XAutherizationValue == "" {
-		fmt.Println(" set the XAutherization value")
-		//XAutherizationValue = "Test123"
-	}
-
-	if REGION == "" {
-		fmt.Println(" Region value is not set please, trying us-east-1 ")
-		REGION = "us-east-1"
-	}
-
-	if buketName == "" {
-		fmt.Println(" bucketName needs to be defined")
-	}
-
-	fmt.Println(" XAutherizationValue ", XAutherizationValue, " Region: ", REGION, " bucketName: ", bucketName)
 
 	fmt.Println("Headers:")
 	for key, value := range request.Headers {
@@ -68,18 +63,16 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 
 	if !isAuthenticated {
+		fmt.Println(" Not Authenticated ... ")
 		return events.APIGatewayProxyResponse{Body: "{status:420, success:false, reason : 'You are not autherized'}", StatusCode: 420}, nil
 	}
 
-	inputJSON := request.Body
 	reader := strings.NewReader(inputJSON)
-
 	newFileName := GUID()
 
 	bucket := flag.String("bucket", bucketName, "The s3 bucket to upload to")
-	//filename := flag.String(newFileName, "", "The file to be uploaded to s3")
 
-	fmt.Println("Received body: ", inputJSON, bucket, "fileName....", newFileName)
+	fmt.Println("Received body: ", inputJSON, bucket, "fileName....", newFileName, " bucket: ", bucketName)
 
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(REGION)},

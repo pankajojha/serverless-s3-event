@@ -21,9 +21,7 @@ Resources:
           Properties:
             Path: /event
             Method: post
-            BucketName: pci-1
-            XAutherization: test1234
-
+          
   UploadFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -35,5 +33,9 @@ Resources:
           Properties:
             Path: /upload
             Method: post
-            BucketName: pci-1
-            XAutherization: test1234
+            Bucket: pci-1
+            Environment:
+              Variables:
+                REGION: us-east-1
+                XAutherization:  abcd1234
+                BUCKET: pci-2
