@@ -62,8 +62,9 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}
 	}
 
+	fmt.Println(" Authenticated ... ", isAuthenticated)
+
 	if !isAuthenticated {
-		fmt.Println(" Not Authenticated ... ")
 		return events.APIGatewayProxyResponse{Body: "{status:420, success:false, reason : 'You are not autherized'}", StatusCode: 420}, nil
 	}
 
@@ -83,10 +84,6 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 
 	uploader := s3manager.NewUploader(sess)
-
-	fmt.Println("uploader: ", uploader)
-
-	//key := filepath.Base(file.Name())
 
 	result, err1 := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(*bucket),

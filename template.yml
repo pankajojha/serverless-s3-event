@@ -21,6 +21,12 @@ Resources:
           Properties:
             Path: /event
             Method: post
+             Environment:
+              Variables:
+                REGION: us-east-1
+                XAutherization:  abcd1234
+                BUCKET: pci-2
+                webhook_post_url: 'https://webhook.site/1148c616-4ee7-4aed-8163-46a53c51fe07'
           
   UploadFunction:
     Type: AWS::Serverless::Function

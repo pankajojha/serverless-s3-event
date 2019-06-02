@@ -11,7 +11,7 @@
 #
 # Happy Coding! 
 
-service: serveless-event-Service # NOTE: update this with your service name
+service: serveless-dynamo-Service # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -19,9 +19,19 @@ service: serveless-event-Service # NOTE: update this with your service name
 frameworkVersion: ">=1.28.0 <2.0.0"
 
 custom:
-  bucketName: pci-2
+  McTableName: ${self:service}-${self:provider.stage}-mc
+  McTableArn: # ARNs are addresses of deployed services in AWS space
+    Fn::Join:
+    - ":"
+    - - arn
+      - aws
+      - dynamodb
+      - Ref: AWS::Region
+      - Ref: AWS::AccountId
+      - table/${self:custom.McTableName}
+  bucketName: pci-3
   region: us-east-1
-  XAutherization: 8C478D
+  XAuth: 8C478DB22187
   serverless-offline:
     port: 4000
 
@@ -30,15 +40,31 @@ provider:
   runtime: go1.x
   stage: ${opt:stage, env:AWS_STAGE, 'dev'}
   region: ${opt:region, env:AWS_REGION, 'us-east-1'}
+  XAuth: ${opt:XAuth, env:XAuth, '8C478DB221879DD93D1EA0F7488CEA4D'}
+
   environment:
     REGION: ${self:provider.region}
     BUCKET: { Ref: Uploads }
+    XAutherization: '8C478DB221879DD93D1EA0F7488CEA4D'
+    webhook_post_url: 'https://webhook.site/1148c616-4ee7-4aed-8163-46a53c51fe07'
+    MC_TABLE_NAME: ${self:custom.McTableName}
   versionFunctions: false
   iamRoleStatements:
-  -  Effect: "Allow"
-     Action:
-       - "s3:*"
-     Resource: "*"
+  - Effect: "Allow"
+    Action:
+      - "s3:*"
+    Resource: "*"
+
+  - Effect: Allow
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: 
+      - ${self:custom.McTableArn}
   
 # you can overwrite defaults here
 #  stage: dev
@@ -71,19 +97,43 @@ package:
    - ./bin/**
 
 functions:
-  event:
-    handler: bin/event
-    events:
-      - http:
-          path: event
-          method: post 
-  upload:
+  upload: # on upload to S3
     handler: bin/upload
     events:
       - http:
           path: upload
-          method: post     
+          method: post
 
+  postEvent:  # on upload triggrer enpoint to process
+    handler: bin/event
+    events:
+      - http:
+          path: postEvent
+          method: post 
+  
+  addEvent:
+    handler: bin/handlers/addEvent
+    package:
+      include:
+        - ./bin/handlers/addEvent
+    events:
+      - http:
+          path: events
+          method: post
+          cors: true
+
+  listEvents:
+    handler: bin/handlers/listEvents
+    package:
+     include:
+       - ./bin/handlers/listEvents
+    events:
+      - http:
+          path: events
+          method: get
+          cors: true
+
+          
 resources:
   Resources:
     Uploads:
@@ -104,6 +154,19 @@ resources:
                 - PUT
               AllowedOrigins:
                 - "*"    
+    McTable: # Define a new DynamoDB Table resource to store todo items
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.McTableName}
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

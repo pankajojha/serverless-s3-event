@@ -8,7 +8,7 @@ serverless deploy
 
 curl -X POST https://abcCloud.execute-api.us-east-1.amazonaws.com/dev/world -d 'Hello, world!'
 curl -X POST https://abcCloud.execute-api.us-east-1.amazonaws.com/dev/event -d 'Hello, world!'
-curl -X POST https://abcCloud.execute-api.us-east-1.amazonaws.com/dev/upload -d '{Hello: world}'
+curl -X POST http://127.0.0.1:3000/upload -H "X-Autherization:8C478DB221879DD93D1EA0F7488CEA4D" -d '{Hello: world}'
 
 curl -X POST http://127.0.0.1:3000/upload -H "X-Auth:Tester12345" -d '{Hello: world}'
 
