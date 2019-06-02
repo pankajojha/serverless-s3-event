@@ -40,12 +40,12 @@ provider:
   runtime: go1.x
   stage: ${opt:stage, env:AWS_STAGE, 'dev'}
   region: ${opt:region, env:AWS_REGION, 'us-east-1'}
-  XAuth: ${opt:XAuth, env:XAuth, '8C478DB221879DD93D1EA0F7488CEA4D'}
+  XAuth: ${opt:XAuth, env:XAuth, '8C478DB22187988CEA4D'}
 
   environment:
     REGION: ${self:provider.region}
     BUCKET: { Ref: Uploads }
-    XAutherization: '8C478DB221879DD93D1EA0F7488CEA4D'
+    XAutherization: '8C478DB2218EA0F7488CEA4D'
     webhook_post_url: 'https://webhook.site/1148c616-4ee7-4aed-8163-46a53c51fe07'
     MC_TABLE_NAME: ${self:custom.McTableName}
   versionFunctions: false
