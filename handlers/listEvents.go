@@ -19,6 +19,12 @@ type ListEventsResponse struct {
 	Events []util.Event `json:"todos"`
 }
 
+//Request header key ...
+const XAutherizationKey = "X-Notification-Secret"
+
+// Request header value...
+var XAutherizationValue = os.Getenv("XAutherization")
+
 var ddb *dynamodb.DynamoDB
 
 func init() {
@@ -35,9 +41,16 @@ func init() {
 func ListEvents(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("ListTodos")
 
+	// if !util.IsAuthenticated(request.Headers) {
+	// 	return events.APIGatewayProxyResponse{Body: "{status:420, success:false, reason : 'You are not autherized'}", StatusCode: 420}, nil
+	// }
+
 	var (
-		tableName = aws.String(os.Getenv("TODOS_TABLE_NAME"))
+		id        = request.PathParameters["id"]
+		tableName = aws.String(os.Getenv("MC_TABLE_NAME"))
 	)
+
+	fmt.Println(" id TODO query ", id)
 
 	// Read from DynamoDB
 	input := &dynamodb.ScanInput{
